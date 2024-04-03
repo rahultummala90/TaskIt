@@ -10,6 +10,7 @@
 @endsection
 
 @section('content')
+
     <form method="POST" action="{{ route('tasks.update', [$task->id]) }}">
         @csrf
         @method("PUT")

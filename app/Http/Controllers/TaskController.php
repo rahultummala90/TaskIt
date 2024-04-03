@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Http\Requests\TaskRequest;
 
 class TaskController extends Controller
 {
@@ -26,20 +27,13 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
-        $validated_data = $request->validate([
-            "title" => "required|max:255",
-            "description" => "required",
-            "long_description" => "required"
-        ]);
-
-        $task = new Task($validated_data);
-        $task->save();
+        $task = Task::create($request->validated());
 
         return redirect()->route("tasks.show", [
-                "id" => $task->id
-            ])->with("success","Task created successfully");
+                "task" => $task->id
+            ])->with("success","Task has been created successfully");
 
     }
 
@@ -54,40 +48,30 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id, Request $request)
+    public function edit($id, Task $task, TaskRequest $request)
     {
-        $validated_data = $request->validate([
-            "title" => "required|max:255",
-            "description" => "required",
-            "long_description" => "required"
-        ]);
-
-        $task = Task::findOrFail($id);
-        $task->update([
-            "title"=> $validated_data["title"],
-            "description"=> $validated_data["description"],
-            "long_description"=> $validated_data["long_description"],
-        ]);
-        $task->save();
-
-        return redirect()->route("tasks.show", [
-                "id" => $task->id
-            ])->with("success","Task edited successfully");
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Task $task, TaskRequest $request)
     {
-        //
+        $task->update($request->validated());
+
+        return redirect()->route("tasks.show", [
+                "task" => $task->id
+            ])->with("success","Task updated successfully");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Task $task)
     {
-        //
+        $task->delete();
+        return redirect()->route("tasks.index")
+            ->with("success","Task deleted successfully");
     }
 }
